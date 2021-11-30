@@ -1,0 +1,273 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: WNA.Module_AkkHL
+// Assembly: WNA, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: FAC526EC-E846-428F-BCE8-13C8E12BDBC7
+// Assembly location: C:\Users\aneta.strzalka\Documents\ANSWERKommunal\ArcGIS\Installation\WNA\Install\WNA.dll
+
+using ESRI.ArcGIS.ArcMapUI;
+using ESRI.ArcGIS.Carto;
+using ESRI.ArcGIS.Editor;
+using ESRI.ArcGIS.esriSystem;
+using ESRI.ArcGIS.Framework;
+using ESRI.ArcGIS.Geodatabase;
+using ESRI.ArcGIS.GeoDatabaseUI;
+using ESRI.ArcGIS.Geometry;
+using ESRI.ArcGIS.NetworkAnalysis;
+using Microsoft.VisualBasic;
+using Microsoft.VisualBasic.CompilerServices;
+using System;
+using System.Diagnostics;
+using WNA.My;
+
+namespace WNA
+{
+  [StandardModule]
+  internal sealed class Module_AkkHL
+  {
+    private const string c_sTargetLayer = "Hauptleitungen";
+    private const string c_sTargetFieldName = "Akk";
+    private const string c_sTargetFieldName2 = "Akk_GZF";
+    private const string c_sWeightName = "Leistung";
+    private const string c_sTitle = "Akk_HL";
+
+    [DebuggerNonUserCode]
+    static Module_AkkHL()
+    {
+    }
+
+    public static void CalcAkk_HL()
+    {
+      UID uid = (UID) new UIDClass();
+      UID extensionCLSID = (UID) new UIDClass();
+      ((IMouseCursor) new MouseCursorClass()).SetCursor((object) 2);
+      IApplication application = ArcMap.Application;
+      IMxDocument document = (IMxDocument) application.Document;
+      IMap focusMap = document.FocusMap;
+      IActiveView activeView = (IActiveView) focusMap;
+      IQueryFilter Filter = (IQueryFilter) new QueryFilterClass();
+      IFeatureLayer layerByName = (IFeatureLayer) Module_AkkHL.UTIL_FindLayerByName(focusMap, "Hauptleitungen");
+      if (layerByName == null)
+      {
+        int num1 = (int) Interaction.MsgBox((object) "Sie müssen den Layer 'Hauptleitungen' laden\r\n um die Berechnung durchführen zu können.");
+      }
+      else
+      {
+        IFeatureClass featureClass = layerByName.FeatureClass;
+        IFeatureSelection featureSelection = (IFeatureSelection) layerByName;
+        if (featureClass.FindField("Akk") != 1)
+        {
+          ISchemaLock schemaLock = (ISchemaLock) featureClass;
+          try
+          {
+            schemaLock.ChangeSchemaLock(esriSchemaLock.esriExclusiveSchemaLock);
+            IField Field1 = (IField) new FieldClass();
+            IFieldEdit fieldEdit1 = (IFieldEdit) Field1;
+            fieldEdit1.Type_2 = esriFieldType.esriFieldTypeDouble;
+            fieldEdit1.Name_2 = "Akk";
+            featureClass.AddField(Field1);
+            IField Field2 = (IField) new FieldClass();
+            IFieldEdit fieldEdit2 = (IFieldEdit) Field2;
+            fieldEdit2.Type_2 = esriFieldType.esriFieldTypeDouble;
+            fieldEdit2.Name_2 = "Akk_GZF";
+            featureClass.AddField(Field2);
+          }
+          catch (Exception ex)
+          {
+            ProjectData.SetProjectError(ex);
+            ProjectData.ClearProjectError();
+          }
+          finally
+          {
+          }
+          schemaLock.ChangeSchemaLock(esriSchemaLock.esriSharedSchemaLock);
+        }
+        Filter.WhereClause = "Enabled = True";
+        activeView.PartialRefresh(esriViewDrawPhase.esriViewGeoSelection, (object) null, (IEnvelope) null);
+        featureSelection.SelectFeatures(Filter, esriSelectionResultEnum.esriSelectionResultNew, false);
+        activeView.PartialRefresh(esriViewDrawPhase.esriViewGeoSelection, (object) null, (IEnvelope) null);
+        IQueryFilter QueryFilter = (IQueryFilter) new QueryFilterClass();
+        QueryFilter.WhereClause = "OBJECTID";
+        if (featureSelection.SelectionSet.Count != featureClass.FeatureCount(QueryFilter))
+        {
+          int num2 = (int) Interaction.MsgBox((object) "Bitte alle Elemente in Hauptleitungen auf den Status Enabled = True setzen.");
+        }
+        else
+        {
+          extensionCLSID[] = (object) "esriEditor.Editor";
+          IEditor extensionByClsid = (IEditor) application.FindExtensionByCLSID(extensionCLSID);
+          IDataset dataset = (IDataset) featureClass;
+          if (extensionByClsid.EditState != esriEditState.esriStateEditing)
+            extensionByClsid.StartEditing(dataset.Workspace);
+          double field = (double) featureClass.FindField("Akk");
+          if (field == -1.0)
+          {
+            int num3 = (int) Interaction.MsgBox((object) "Die Spalte 'Akk' ist nicht in Hauptleitungen enthalten.");
+          }
+          else
+          {
+            IFeatureCursor featureCursor1 = (IFeatureCursor) null;
+            ISelectionSet selectionSet = featureSelection.SelectionSet;
+            ICursor cursor1 = (ICursor) featureCursor1;
+            ref ICursor local = ref cursor1;
+            selectionSet.Search((IQueryFilter) null, false, out local);
+            IFeatureCursor featureCursor2 = (IFeatureCursor) cursor1;
+            long count = (long) featureSelection.SelectionSet.Count;
+            extensionByClsid.StartOperation();
+            long num4 = 0;
+            IPoint point = (IPoint) new PointClass();
+            IStatusBar statusBar = application.StatusBar;
+            statusBar.Visible = true;
+            for (IFeature pFeature = featureCursor2.NextFeature(); pFeature != null; pFeature = featureCursor2.NextFeature())
+            {
+              checked { ++num4; }
+              statusBar.set_Message(0, "Processing feature " + Conversion.Str((object) num4) + " of " + Conversions.ToString(count) + " ...");
+              double num5 = Module_AkkHL.ReturnAccumulation(pFeature, "Leistung");
+              pFeature.set_Value(checked ((int) Math.Round(field)), (object) num5);
+              pFeature.Store();
+            }
+            ICursor cursor2 = (ICursor) featureClass.Update((IQueryFilter) null, true);
+            ICalculator calculator1 = (ICalculator) new CalculatorClass();
+            ICalculator calculator2 = calculator1;
+            calculator2.Cursor = cursor2;
+            calculator2.Expression = "ROUND(([Akk] * [GZF]),2)";
+            calculator2.Field = "Akk_GZF";
+            calculator1.Calculate();
+            extensionByClsid.StopOperation("CalcAkk_HL Akk");
+            document.get_ContentsView(0).Refresh((object) 0);
+            activeView.Refresh();
+            extensionByClsid.StopEditing(true);
+            int num6 = (int) Interaction.MsgBox((object) "Die Hauptleitungen wurden erfolgreich akkumuliert \r\nund können nun dimensioniert werden.", MsgBoxStyle.Information, (object) "Akkumulierung");
+          }
+        }
+      }
+    }
+
+    public static ILayer UTIL_FindLayerByName(IMap pMap, string sLayerName)
+    {
+      int num1;
+      ILayer layer1;
+      int num2;
+      try
+      {
+        UID uid = (UID) new UIDClass();
+        uid[] = (object) "{6CA416B1-E160-11D2-9F4E-00C04F6BC78E}";
+        IEnumLayer enumLayer = pMap.get_Layers(uid);
+        enumLayer.Reset();
+        ILayer layer2 = enumLayer.Next();
+        ProjectData.ClearProjectError();
+        num1 = 2;
+        for (; layer2 != null; layer2 = enumLayer.Next())
+        {
+          if (Operators.CompareString(Strings.UCase(layer2.Name), Strings.UCase(sLayerName), false) == 0)
+          {
+            layer1 = layer2;
+            goto label_13;
+          }
+        }
+        layer1 = layer2;
+        goto label_13;
+label_8:
+        num2 = -1;
+        switch (num1)
+        {
+          case 2:
+            int num3 = (int) Interaction.MsgBox((object) ("Akk_HL - " + Information.Err().Description));
+            goto label_13;
+        }
+      }
+      catch (Exception ex) when (ex is Exception & (uint) num1 > 0U & num2 == 0)
+      {
+        ProjectData.SetProjectError(ex);
+        goto label_8;
+      }
+      throw ProjectData.CreateProjectError(-2146828237);
+label_13:
+      ILayer layer3 = layer1;
+      if (num2 == 0)
+        return layer3;
+      ProjectData.ClearProjectError();
+      return layer3;
+    }
+
+    private static double ReturnAccumulation(IFeature pFeature, string sWeightName)
+    {
+      int num1;
+      double num2;
+      int num3;
+      try
+      {
+        IJunctionFlag[] junctionFlagArray = new IJunctionFlag[2];
+        IEnumNetEID junctionEIDs = (IEnumNetEID) null;
+        IEnumNetEID edgeEIDs = (IEnumNetEID) null;
+        object pTotalCost = (object) null;
+        ProjectData.ClearProjectError();
+        num1 = 2;
+        if (!(pFeature is INetworkFeature))
+        {
+          int num4 = (int) Interaction.MsgBox((object) "Network not found for specified feature.", MsgBoxStyle.Critical, (object) "Flow Accumulation");
+          goto label_22;
+        }
+        else
+        {
+          IGeometricNetwork geometricNetwork = ((INetworkFeature) pFeature).GeometricNetwork;
+          INetElements network1 = (INetElements) geometricNetwork.Network;
+          INetwork network2 = geometricNetwork.Network;
+          INetSchema netSchema = (INetSchema) network2;
+          int weightInternalID;
+          INetWeight netWeight = netSchema.get_Weight(weightInternalID);
+          int num4 = checked (netSchema.WeightCount - 1);
+          int num5 = 0;
+          while (num5 <= num4 && Operators.CompareString(netWeight.WeightName, sWeightName, false) != 0)
+            checked { ++num5; }
+          if (netWeight != null && netWeight.WeightType == esriWeightType.esriWTBitGate | netWeight.WeightType == esriWeightType.esriWTNull)
+            netWeight = (INetWeight) null;
+          IFeature feature;
+          if (pFeature.FeatureType == esriFeatureType.esriFTComplexEdge | pFeature.FeatureType == esriFeatureType.esriFTSimpleEdge)
+            feature = (IFeature) ((IEdgeFeature) pFeature).ToJunctionFeature;
+          else if (pFeature.FeatureType == esriFeatureType.esriFTSimpleJunction | pFeature.FeatureType == esriFeatureType.esriFTComplexJunction)
+          {
+            feature = pFeature;
+          }
+          else
+          {
+            num2 = 0.0;
+            goto label_22;
+          }
+          INetFlag netFlag = (INetFlag) new JunctionFlagClass();
+          netFlag.UserClassID = feature.Class.ObjectClassID;
+          netFlag.UserID = feature.OID;
+          netFlag.UserSubID = 0;
+          ITraceFlowSolver2 traceFlowSolver2 = (ITraceFlowSolver2) new TraceFlowSolverClass();
+          ((INetSolver) traceFlowSolver2).SourceNetwork = network2;
+          junctionFlagArray[0] = (IJunctionFlag) netFlag;
+          traceFlowSolver2.PutJunctionOrigins(1, ref junctionFlagArray[0]);
+          if (netWeight != null)
+            ((INetSolverWeights) traceFlowSolver2).JunctionWeight = netWeight;
+          traceFlowSolver2.FindAccumulation(esriFlowMethod.esriFMUpstream, esriFlowElements.esriFEJunctionsAndEdges, out junctionEIDs, out edgeEIDs, out pTotalCost);
+          num2 = Conversions.ToDouble(pTotalCost);
+          goto label_22;
+        }
+label_17:
+        num3 = -1;
+        switch (num1)
+        {
+          case 2:
+            int num6 = (int) Interaction.MsgBox((object) ("Akk_HL - " + Information.Err().Description));
+            goto label_22;
+        }
+      }
+      catch (Exception ex) when (ex is Exception & (uint) num1 > 0U & num3 == 0)
+      {
+        ProjectData.SetProjectError(ex);
+        goto label_17;
+      }
+      throw ProjectData.CreateProjectError(-2146828237);
+label_22:
+      double num7 = num2;
+      if (num3 == 0)
+        return num7;
+      ProjectData.ClearProjectError();
+      return num7;
+    }
+  }
+}

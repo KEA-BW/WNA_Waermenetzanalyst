@@ -1,0 +1,174 @@
+﻿// Decompiled with JetBrains decompiler
+// Type: WNA.Module_DimHAL60K
+// Assembly: WNA, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+// MVID: FAC526EC-E846-428F-BCE8-13C8E12BDBC7
+// Assembly location: C:\Users\aneta.strzalka\Documents\ANSWERKommunal\ArcGIS\Installation\WNA\Install\WNA.dll
+
+using ESRI.ArcGIS.ArcMapUI;
+using ESRI.ArcGIS.Carto;
+using ESRI.ArcGIS.Editor;
+using ESRI.ArcGIS.esriSystem;
+using ESRI.ArcGIS.Framework;
+using ESRI.ArcGIS.Geodatabase;
+using Microsoft.VisualBasic;
+using Microsoft.VisualBasic.CompilerServices;
+using System;
+using System.Diagnostics;
+using WNA.My;
+
+namespace WNA
+{
+  [StandardModule]
+  internal sealed class Module_DimHAL60K
+  {
+    private const string c_sTargetLayer = "Hausanschlussleitungen";
+    private const string c_sSourceFieldName = "Leistung_k";
+    private const string c_sTargetFieldName = "DN_60K";
+
+    [DebuggerNonUserCode]
+    static Module_DimHAL60K()
+    {
+    }
+
+    public static void CalcDim_HAL60K()
+    {
+      UID extensionCLSID = (UID) new UIDClass();
+      ((IMouseCursor) new MouseCursorClass()).SetCursor((object) 2);
+      IApplication application = ArcMap.Application;
+      IMap focusMap = ((IMxDocument) application.Document).FocusMap;
+      if ((IFeatureLayer) Module_AkkHL.UTIL_FindLayerByName(focusMap, "Hausanschlussleitungen") == null)
+        return;
+      IFeatureClass featureClass = ((IFeatureLayer) Module_AkkHL.UTIL_FindLayerByName(focusMap, "Hausanschlussleitungen")).FeatureClass;
+      if ((double) featureClass.FindField("Leistung_k") == -1.0)
+        return;
+      if (featureClass.FindField("DN_60K") != 1)
+      {
+        ISchemaLock schemaLock = (ISchemaLock) featureClass;
+        try
+        {
+          schemaLock.ChangeSchemaLock(esriSchemaLock.esriExclusiveSchemaLock);
+          IField Field = (IField) new FieldClass();
+          IFieldEdit fieldEdit = (IFieldEdit) Field;
+          fieldEdit.Type_2 = esriFieldType.esriFieldTypeDouble;
+          fieldEdit.Name_2 = "DN_60K";
+          featureClass.AddField(Field);
+        }
+        catch (Exception ex)
+        {
+          ProjectData.SetProjectError(ex);
+          ProjectData.ClearProjectError();
+        }
+        finally
+        {
+        }
+        schemaLock.ChangeSchemaLock(esriSchemaLock.esriSharedSchemaLock);
+      }
+      extensionCLSID[] = (object) "esriEditor.Editor";
+      IEditor extensionByClsid = (IEditor) application.FindExtensionByCLSID(extensionCLSID);
+      IDataset dataset = (IDataset) featureClass;
+      if (extensionByClsid.EditState != esriEditState.esriStateEditing)
+        extensionByClsid.StartEditing(dataset.Workspace);
+      extensionByClsid.StartOperation();
+      IQueryFilter filter = (IQueryFilter) new QueryFilterClass();
+      filter.WhereClause = "[Leistung_k] >=0 AND [Leistung_k] <=52.1";
+      IFeatureCursor featureCursor1 = featureClass.Update(filter, false);
+      int field1 = featureCursor1.FindField("DN_60K");
+      for (IFeature Object = featureCursor1.NextFeature(); Object != null; Object = featureCursor1.NextFeature())
+      {
+        Object.set_Value(field1, (object) 20);
+        featureCursor1.UpdateFeature(Object);
+      }
+      filter.WhereClause = "[Leistung_k] >52.1 AND [Leistung_k] <=95.9";
+      IFeatureCursor featureCursor2 = featureClass.Update(filter, false);
+      int field2 = featureCursor2.FindField("DN_60K");
+      for (IFeature Object = featureCursor2.NextFeature(); Object != null; Object = featureCursor2.NextFeature())
+      {
+        Object.set_Value(field2, (object) 25);
+        featureCursor2.UpdateFeature(Object);
+      }
+      filter.WhereClause = "[Leistung_k] >95.9 AND [Leistung_k] <=218";
+      IFeatureCursor featureCursor3 = featureClass.Update(filter, false);
+      int field3 = featureCursor3.FindField("DN_60K");
+      for (IFeature Object = featureCursor3.NextFeature(); Object != null; Object = featureCursor3.NextFeature())
+      {
+        Object.set_Value(field3, (object) 32);
+        featureCursor3.UpdateFeature(Object);
+      }
+      filter.WhereClause = "[Leistung_k] >218 AND [Leistung_k] <=366";
+      IFeatureCursor featureCursor4 = featureClass.Update(filter, false);
+      int field4 = featureCursor4.FindField("DN_60K");
+      for (IFeature Object = featureCursor4.NextFeature(); Object != null; Object = featureCursor4.NextFeature())
+      {
+        Object.set_Value(field4, (object) 40);
+        featureCursor4.UpdateFeature(Object);
+      }
+      filter.WhereClause = "[Leistung_k] >366 AND [Leistung_k] <=818";
+      IFeatureCursor featureCursor5 = featureClass.Update(filter, false);
+      int field5 = featureCursor5.FindField("DN_60K");
+      for (IFeature Object = featureCursor5.NextFeature(); Object != null; Object = featureCursor5.NextFeature())
+      {
+        Object.set_Value(field5, (object) 50);
+        featureCursor5.UpdateFeature(Object);
+      }
+      filter.WhereClause = "[Leistung_k] >818 AND [Leistung_k] <=1556";
+      IFeatureCursor featureCursor6 = featureClass.Update(filter, false);
+      int field6 = featureCursor6.FindField("DN_60K");
+      for (IFeature Object = featureCursor6.NextFeature(); Object != null; Object = featureCursor6.NextFeature())
+      {
+        Object.set_Value(field6, (object) 65);
+        featureCursor6.UpdateFeature(Object);
+      }
+      filter.WhereClause = "[Leistung_k] >1556 AND [Leistung_k] <=2411";
+      IFeatureCursor featureCursor7 = featureClass.Update(filter, false);
+      int field7 = featureCursor7.FindField("DN_60K");
+      for (IFeature Object = featureCursor7.NextFeature(); Object != null; Object = featureCursor7.NextFeature())
+      {
+        Object.set_Value(field7, (object) 80);
+        featureCursor7.UpdateFeature(Object);
+      }
+      filter.WhereClause = "[Leistung_k] >2411 AND [Leistung_k] <=4289";
+      IFeatureCursor featureCursor8 = featureClass.Update(filter, false);
+      int field8 = featureCursor8.FindField("DN_60K");
+      for (IFeature Object = featureCursor8.NextFeature(); Object != null; Object = featureCursor8.NextFeature())
+      {
+        Object.set_Value(field8, (object) 100);
+        featureCursor8.UpdateFeature(Object);
+      }
+      filter.WhereClause = "[Leistung_k] >4289 AND [Leistung_k] <=6827";
+      IFeatureCursor featureCursor9 = featureClass.Update(filter, false);
+      int field9 = featureCursor9.FindField("DN_60K");
+      for (IFeature Object = featureCursor9.NextFeature(); Object != null; Object = featureCursor9.NextFeature())
+      {
+        Object.set_Value(field9, (object) 125);
+        featureCursor9.UpdateFeature(Object);
+      }
+      filter.WhereClause = "[Leistung_k] >6827 AND [Leistung_k] <=12485";
+      IFeatureCursor featureCursor10 = featureClass.Update(filter, false);
+      int field10 = featureCursor10.FindField("DN_60K");
+      for (IFeature Object = featureCursor10.NextFeature(); Object != null; Object = featureCursor10.NextFeature())
+      {
+        Object.set_Value(field10, (object) 150);
+        featureCursor10.UpdateFeature(Object);
+      }
+      filter.WhereClause = "[Leistung_k] >12485 AND [Leistung_k] <=27692";
+      IFeatureCursor featureCursor11 = featureClass.Update(filter, false);
+      int field11 = featureCursor11.FindField("DN_60K");
+      for (IFeature Object = featureCursor11.NextFeature(); Object != null; Object = featureCursor11.NextFeature())
+      {
+        Object.set_Value(field11, (object) 200);
+        featureCursor11.UpdateFeature(Object);
+      }
+      filter.WhereClause = "[Leistung_k] >27692 AND [Leistung_k] <=52041";
+      IFeatureCursor featureCursor12 = featureClass.Update(filter, false);
+      int field12 = featureCursor12.FindField("DN_60K");
+      for (IFeature Object = featureCursor12.NextFeature(); Object != null; Object = featureCursor12.NextFeature())
+      {
+        Object.set_Value(field12, (object) 250);
+        featureCursor12.UpdateFeature(Object);
+      }
+      extensionByClsid.StopOperation("CalcDim_HAL_60K DN_60K");
+      extensionByClsid.StopEditing(true);
+      int num = (int) Interaction.MsgBox((object) "Die Hausanschlussleitungen wurden erfolgreich dimensioniert.", MsgBoxStyle.Information, (object) "Dimensionierung");
+    }
+  }
+}
