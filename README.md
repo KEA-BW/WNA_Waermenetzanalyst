@@ -1,5 +1,5 @@
 # WNA_Waermenetzanalyst
-QGIS basiertes Wärmeplanungstool, welches den gesamten Workflow einer kommunalen Wärmeplanung abbildet.
+GIS-Anwendungen für Kommunen und Fachplaner
 
 Der Wärmenetz Analyst (WNA) ist eine von der KEA-BW entwickelte ArcGIS Programmerweiterung. Dieses Add-In Modul optimiert die Grobdimensionierung der Leitungsstränge im geplanten Netz, das zuvor mithilfe der ArcGIS Funktion „Rooting“ ermittelt wurde. Dies ermöglicht die Abbildung verschiedener Wärmenetz-Szenarien und eröffnet eine neue Flexibilität in der Netzberechnung und -simulation.
 
