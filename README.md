@@ -21,4 +21,4 @@ Die GIS-gestützte Vorgehensweise dabei umfasst die folgenden Schritte:
 
 •	Thematische Visualisierung der Ergebnisse
 
-Die Datei „2020_KEA-BW_WNA-Add-In_mit _Testdaten_und_Leitfaden.zip“ beinhaltet die entwickelte ArcGIS-Programmerweiterung, der Nutzerleitfaden sowie ein Testbeispiel.  Die restlichen Textdateien beinhalten der aktuelle Quellcode zum Kompilieren.
+Die Datei „2020_KEA-BW_WNA-Add-In_mit_Testdaten_und_Leitfaden.zip“ beinhaltet die entwickelte ArcGIS-Programmerweiterung, der Nutzerleitfaden sowie ein Testbeispiel.  Die restlichen Textdateien beinhalten der aktuelle Quellcode zum Kompilieren.
