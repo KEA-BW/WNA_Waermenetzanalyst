@@ -20,3 +20,5 @@ Die GIS-gestützte Vorgehensweise dabei umfasst die folgenden Schritte:
 •	Simulation verschiedener Szenarien
 
 •	Thematische Visualisierung der Ergebnisse
+
+Die Datei „2020_KEA-BW_WNA-Add-In_mit "Testdaten_und_Leitfaden.zip“ beinhaltet die entwickelte ArcGIS-Programmerweiterung, der Nutzerleitfaden sowie ein Testbeispiel.  Die restlichen Daten beinhalten der aktuelle Quellcode zum Kompilieren.
